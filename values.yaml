@@ -1,0 +1,47 @@
+# Default values for serverclient.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+nameOverride: ""
+fullnameOverride: ""
+nodeSelector: {
+  kubernetes.io/os: windows
+}
+
+deployment:
+  replicaCount: 1
+  terminationGracePeriodSeconds: 30
+  image:
+    registry: mcr.microsoft.com
+    repository: windows/servercore
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: ltsc2019
+  auth:
+    enabled: false
+  imagePullSecrets: []
+  podAnnotations: {}
+  serverCommand: ["ping", "-t", "localhost"]
+  clientCommand: []
+  preStopHookCommand: ["curl", "http://127.0.0.1:8090/kill", "-v"]
+  podSecurityContext: {}
+  tolerations: []
+  affinity: {}
+  resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+service:
+  type: ClusterIP
+  tcpPort: 4444
+  udpPort: 4445
+  sessionAffinity: None
+  internalTrafficPolicy: Cluster
+  externalTrafficPolicy: Cluster
