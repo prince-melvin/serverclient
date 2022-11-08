@@ -8,20 +8,20 @@ nodeSelector: {
 }
 
 deployment:
-  replicaCount: 1
+  replicaCount: 2
   terminationGracePeriodSeconds: 30
   image:
-    registry: mcr.microsoft.com
-    repository: windows/servercore
+    registry: princepereira
+    repository: tcp-client-server
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: ltsc2019
+    tag: stable
   auth:
     enabled: false
   imagePullSecrets: []
   podAnnotations: {}
-  serverCommand: ["ping", "-t", "localhost"]
-  clientCommand: []
+  serverCommand: ["/server.exe", "-p", "4444"]
+  clientCommand: ["/client.exe", "-i", "127.0.0.1", "-p", "4444", "-c", "10", "-r", "10", "-d", "50"]
   preStopHookCommand: ["curl", "http://127.0.0.1:8090/kill", "-v"]
   podSecurityContext: {}
   tolerations: []
