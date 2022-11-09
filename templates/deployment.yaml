@@ -1,61 +1,56 @@
+{{- range $i, $e := until (int .Values.globalInstanceCount) }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "serverclient.fullname" . }}
+  name: {{ (include "serverclient.fullname" $)}}-{{ $i }}
   labels:
-    {{- include "serverclient.labels" . | nindent 4 }}
-  namespace: {{ .Release.Namespace }}
+    {{- include "serverclient.labels" $ | nindent 4 }}-{{ $i }}
+  namespace: {{ $.Release.Namespace }}
 spec:
   progressDeadlineSeconds: 600
-  replicas: {{ .Values.deployment.replicaCount }}
+  replicas: {{ $.Values.deployment.replicaCount }}
   selector:
     matchLabels:
-      {{- include "serverclient.selectorLabels" . | nindent 6 }}
+      {{- include "serverclient.selectorLabels" $| nindent 6 }}-{{ $i }}
   template:
     metadata:
       annotations:
-        {{- toYaml .Values.deployment.podAnnotations | nindent 8 }}
+        {{- toYaml $.Values.deployment.podAnnotations | nindent 8 }}
       labels:
-        {{- include "serverclient.selectorLabels" . | nindent 8 }}
-    {{- with .Values.deployment }}
+        {{- include "serverclient.selectorLabels" $ | nindent 8 }}-{{ $i }}
     spec:
       imagePullSecrets:
-        {{- toYaml .imagePullSecrets | nindent 8 }}
+        {{- toYaml $.Values.deployment.imagePullSecrets | nindent 8 }}
       securityContext:
-        {{- toYaml .podSecurityContext | nindent 8 }}
-    {{- end }}
+        {{- toYaml $.Values.deployment.podSecurityContext | nindent 8 }}
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       containers:
-        - name: {{ .Chart.Name }}
-          image: "{{ .Values.deployment.image.registry }}/{{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag | default .Chart.AppVersion }}"
-          {{- with .Values.deployment }}
-          imagePullPolicy: {{ .image.pullPolicy }}
+        - name: {{ $.Chart.Name }}-{{ $i }}
+          image: "{{ $.Values.deployment.image.registry }}/{{ $.Values.deployment.image.repository }}:{{ $.Values.deployment.image.tag | default $.Chart.AppVersion }}"
+          imagePullPolicy: {{ $.Values.deployment.image.pullPolicy }}
           resources:
-            {{- toYaml .resources | nindent 12 }}
+            {{- toYaml $.Values.deployment.resources | nindent 12 }}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           lifecycle:
             preStop:
               exec:
                 command: 
-                {{- toYaml .preStopHookCommand | nindent 18 }}
-          {{- if .serverCommand }}
+                {{- toYaml $.Values.deployment.preStopHookCommand | nindent 18 }}
+          {{- if $.Values.deployment.serverCommand }}
           command:
-            {{- toYaml .serverCommand | nindent 12 }}
-          {{- else if .clientCommand }}
+            {{- toYaml $.Values.deployment.serverCommand | nindent 12 }}
+          {{- else if $.Values.deployment.clientCommand }}
           command:
-            {{- toYaml .clientCommand | nindent 12 }}
+            {{- toYaml $.Values.deployment.clientCommand | nindent 12 }}
           {{- end }}
-          {{- end }}
-      {{- with .Values.nodeSelector }}
       nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.deployment }}
-      terminationGracePeriodSeconds: {{ .terminationGracePeriodSeconds }}
+        {{- toYaml $.Values.nodeSelector | nindent 8 }}
+      terminationGracePeriodSeconds: {{ $.Values.deployment.terminationGracePeriodSeconds }}
       affinity: 
-        {{- toYaml .affinity | nindent 8 }}
+        {{- toYaml $.Values.deployment.affinity | nindent 8 }}
       tolerations:
-        {{- toYaml .tolerations | nindent 8 }}
-      {{- end }}
+        {{- toYaml $.Values.deployment.tolerations | nindent 8 }}
+{{- end }}

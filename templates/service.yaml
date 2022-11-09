@@ -1,31 +1,34 @@
+{{- range $i, $e := until (int .Values.globalInstanceCount) }}
+---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "serverclient.fullname" . }}
+  name: {{ include "serverclient.fullname" $ }}-{{ $i }}
   labels:
-    {{- include "serverclient.labels" . | nindent 4 }}
-  namespace: {{ .Release.Namespace }}
+    {{- (printf "%s-%d" (include "serverclient.labels" $) .) | nindent 4 }}
+  namespace: {{ $.Release.Namespace }}
 spec:
-  internalTrafficPolicy: {{ .Values.service.internalTrafficPolicy }}
-  {{- if eq .Values.service.type "NodePort" }} 
-  externalTrafficPolicy: {{ .Values.service.externalTrafficPolicy }}
-  {{- else if eq .Values.service.type "LoadBalancer" }} 
-  externalTrafficPolicy: {{ .Values.service.externalTrafficPolicy }}
+  internalTrafficPolicy: {{ $.Values.service.internalTrafficPolicy }}
+  {{- if eq $.Values.service.type "NodePort" }} 
+  externalTrafficPolicy: {{ $.Values.service.externalTrafficPolicy }}
+  {{- else if eq $.Values.service.type "LoadBalancer" }} 
+  externalTrafficPolicy: {{ $.Values.service.externalTrafficPolicy }}
   {{- else }}
   {{- end }}
   ipFamilies:
   - IPv4
   ipFamilyPolicy: SingleStack
-  sessionAffinity: {{ .Values.service.sessionAffinity }}
-  type: {{ .Values.service.type }}
+  sessionAffinity: {{ $.Values.service.sessionAffinity }}
+  type: {{ $.Values.service.type }}
   ports:
     - name: tcp
-      port: {{ .Values.service.tcpPort }}
-      targetPort: {{ .Values.service.tcpPort }}
+      port: {{ $.Values.service.tcpPort }}
+      targetPort: {{ $.Values.service.tcpPort }}
       protocol: TCP
     - name: udp
-      port: {{ .Values.service.udpPort }}
+      port: {{ $.Values.service.udpPort }}
       protocol: UDP
-      targetPort: {{ .Values.service.udpPort }}
+      targetPort: {{ $.Values.service.udpPort }}
   selector:
-    {{- include "serverclient.selectorLabels" . | nindent 4 }}
+    {{- (printf "%s-%d" (include "serverclient.selectorLabels" $) .) | nindent 4 }}
+{{ end }}
