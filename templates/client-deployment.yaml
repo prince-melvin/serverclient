@@ -3,22 +3,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ (include "serverclient.fullname" $)}}-{{ $i }}
+  name: {{ (include "serverclient.fullname" $)}}-client-{{ $i }}
   labels:
-    {{- include "serverclient.labels" $ | nindent 4 }}-{{ $i }}
+    {{- include "serverclient.labels" $ | nindent 4 }}-client-{{ $i }}
   namespace: {{ $.Release.Namespace }}
 spec:
   progressDeadlineSeconds: 600
-  replicas: {{ $.Values.deployment.replicaCount }}
+  replicas: {{ $.Values.deployment.client.clientReplicaCount }}
   selector:
     matchLabels:
-      {{- include "serverclient.selectorLabels" $| nindent 6 }}-{{ $i }}
+      {{- include "serverclient.selectorLabels" $| nindent 6 }}-client-{{ $i }}
   template:
     metadata:
       annotations:
         {{- toYaml $.Values.deployment.podAnnotations | nindent 8 }}
       labels:
-        {{- include "serverclient.selectorLabels" $ | nindent 8 }}-{{ $i }}
+        {{- include "serverclient.selectorLabels" $ | nindent 8 }}-client-{{ $i }}
     spec:
       imagePullSecrets:
         {{- toYaml $.Values.deployment.imagePullSecrets | nindent 8 }}
@@ -39,12 +39,11 @@ spec:
               exec:
                 command: 
                 {{- toYaml $.Values.deployment.preStopHookCommand | nindent 18 }}
-          {{- if $.Values.deployment.serverCommand }}
+          {{- if $.Values.deployment.client.clientCommand }}
           command:
-            {{- toYaml $.Values.deployment.serverCommand | nindent 12 }}
-          {{- else if $.Values.deployment.clientCommand }}
-          command:
-            {{- toYaml $.Values.deployment.clientCommand | nindent 12 }}
+            {{- $svcFqdn := (printf "%s-%d.%s.svc.cluster.local" (include "serverclient.fullname"  $) . $.Release.Namespace) -}}
+            {{- $svcName := (printf "%s-%d" (include "serverclient.fullname"  $) .) -}}
+            {{- toYaml (append $.Values.deployment.client.clientCommand $svcFqdn) | nindent 12 }}
           {{- end }}
       nodeSelector:
         {{- toYaml $.Values.nodeSelector | nindent 8 }}

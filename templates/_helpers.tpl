@@ -42,5 +42,6 @@ helm.sh/chart: {{ include "serverclient.chart" . }}
 Selector labels
 */}}
 {{- define "serverclient.selectorLabels" -}}
+app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/name: {{ include "serverclient.name" . }}
 {{- end }}

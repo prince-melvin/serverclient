@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-# Number of clients/servers
+# Number of client deployments + correspond server loadBalancers & deployments
 globalInstanceCount: 2
 
 nameOverride: ""
@@ -12,8 +12,13 @@ nodeSelector: {
 }
 
 deployment:
-  replicaCount: 2
-  terminationGracePeriodSeconds: 30
+  client:
+      clientReplicaCount: 1
+      clientCommand: ["/client.exe", "-p", "4444", "-c", "10", "-r", "10", "-d", "50", "-i"]  # TODO: change to connect to remote LB?
+      #["/client.exe", "-p", "4444", "-c", "10", "-r", "10", "-d", "50", "-i", "127.0.0.1"]
+  server:
+    serverCommand: ["/server.exe", "-p", "4444"]
+    serverReplicaCount: 2
   image:
     registry: princepereira
     repository: tcp-client-server
@@ -24,9 +29,8 @@ deployment:
     enabled: false
   imagePullSecrets: []
   podAnnotations: {}
-  serverCommand: ["/server.exe", "-p", "4444"]
-  clientCommand: ["/client.exe", "-i", "127.0.0.1", "-p", "4444", "-c", "10", "-r", "10", "-d", "50"]  # TODO: change to connect to remote LB?
   preStopHookCommand: ["curl", "http://127.0.0.1:8090/kill", "-v"]
+  terminationGracePeriodSeconds: 30
   podSecurityContext: {}
   tolerations: []
   affinity: {}
