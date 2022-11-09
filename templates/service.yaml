@@ -1,12 +1,15 @@
 {{- range $i, $e := until (int .Values.globalInstanceCount) }}
+{{- $svcName := (printf "%s-%d" (include "serverclient.fullname"  $) .) -}}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "serverclient.fullname" $ }}-{{ $i }}
+  name: {{ $svcName }}
   labels:
     {{- (printf "%s-%d" (include "serverclient.labels" $) .) | nindent 4 }}
   namespace: {{ $.Release.Namespace }}
+  annotations:
+    service.beta.kubernetes.io/azure-dns-label-name: {{ $svcName }}
 spec:
   internalTrafficPolicy: {{ $.Values.service.internalTrafficPolicy }}
   {{- if eq $.Values.service.type "NodePort" }} 

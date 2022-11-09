@@ -1,2 +1,4 @@
+# For development:
 output.txt
 samples/*
+backup/*

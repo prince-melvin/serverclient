@@ -41,9 +41,14 @@ spec:
                 {{- toYaml $.Values.deployment.preStopHookCommand | nindent 18 }}
           {{- if $.Values.deployment.client.clientCommand }}
           command:
-            {{- $svcFqdn := (printf "%s-%d.%s.svc.cluster.local" (include "serverclient.fullname"  $) . $.Release.Namespace) -}}
             {{- $svcName := (printf "%s-%d" (include "serverclient.fullname"  $) .) -}}
-            {{- toYaml (append $.Values.deployment.client.clientCommand $svcFqdn) | nindent 12 }}
+            {{- $svcFqdnInternal := (printf "%s.%s.svc.cluster.local" ($svcName) $.Release.Namespace) -}}
+            {{- if eq $.Values.service.type "LoadBalancer" }} 
+            {{- $svcFqdnExternal := (printf "%s.%s.cloudapp.azure.com" ($svcName) $.Values.azureRegion) -}}
+            {{- toYaml (append $.Values.deployment.client.clientCommand $svcFqdnExternal) | nindent 12 }}
+            {{- else }}
+            {{- toYaml (append $.Values.deployment.client.clientCommand $svcFqdnInternal) | nindent 12 }}
+            {{- end }}
           {{- end }}
       nodeSelector:
         {{- toYaml $.Values.nodeSelector | nindent 8 }}

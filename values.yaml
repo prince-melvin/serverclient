@@ -7,6 +7,7 @@ globalInstanceCount: 2
 
 nameOverride: ""
 fullnameOverride: ""
+azureRegion: "westus2"
 nodeSelector: {
   kubernetes.io/os: windows
 }
@@ -14,8 +15,7 @@ nodeSelector: {
 deployment:
   client:
       clientReplicaCount: 1
-      clientCommand: ["/client.exe", "-p", "4444", "-c", "10", "-r", "10", "-d", "50", "-i"]  # TODO: change to connect to remote LB?
-      #["/client.exe", "-p", "4444", "-c", "10", "-r", "10", "-d", "50", "-i", "127.0.0.1"]
+      clientCommand: ["/client.exe", "-p", "4444", "-c", "10", "-r", "100000", "-d", "50", "-i"]  # TODO: change to connect to remote LB?
   server:
     serverCommand: ["/server.exe", "-p", "4444"]
     serverReplicaCount: 2
