@@ -1,4 +1,4 @@
-{{- range $i, $e := until (int .Values.globalInstanceCount) }}
+{{- range $i, $e := until (int .Values.serverInstanceCount) }}
 {{- $svcName := (printf "%s-%d" (include "serverclient.fullname"  $) .) -}}
 ---
 apiVersion: v1

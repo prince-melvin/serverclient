@@ -1,4 +1,4 @@
-{{- range $i, $e := until (int .Values.globalInstanceCount) }}
+{{- range $i, $e := until (int .Values.clientInstanceCount) }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -50,6 +50,11 @@ spec:
             {{- toYaml (append $.Values.deployment.client.clientCommand $svcFqdnInternal) | nindent 12 }}
             {{- end }}
           {{- end }}
+      initContainers:
+        - name: init-{{ $.Chart.Name }}-{{ $i }}
+          image: "{{ $.Values.deployment.image.registry }}/{{ $.Values.deployment.image.repository }}:{{ $.Values.deployment.image.tag | default $.Chart.AppVersion }}"
+          imagePullPolicy: {{ $.Values.deployment.image.pullPolicy }}
+          command: ["ping", "-n", "60", "localhost"]
       nodeSelector:
         {{- toYaml $.Values.nodeSelector | nindent 8 }}
       terminationGracePeriodSeconds: {{ $.Values.deployment.terminationGracePeriodSeconds }}

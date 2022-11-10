@@ -2,20 +2,22 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-# Number of client deployments + correspond server loadBalancers & deployments
-globalInstanceCount: 2
+# Number of server loadBalancers & deployments
+serverInstanceCount: 2
+# Number of client deployments 
+clientInstanceCount: 2
 
 nameOverride: ""
 fullnameOverride: ""
 azureRegion: "westus2"
-nodeSelector: {
+nodeSelector: 
   kubernetes.io/os: windows
-}
+
 
 deployment:
   client:
       clientReplicaCount: 1
-      clientCommand: ["/client.exe", "-p", "4444", "-c", "10", "-r", "100000", "-d", "50", "-i"]  # TODO: change to connect to remote LB?
+      clientCommand: ["/client.exe", "-p", "4444", "-c", "10", "-r", "100000", "-d", "50", "-i"]  # TODO: Delay this to give enough time for servers to get ready?
   server:
     serverCommand: ["/server.exe", "-p", "4444"]
     serverReplicaCount: 2
@@ -48,7 +50,7 @@ deployment:
 
 service:
   type: LoadBalancer
-  tcpPort: 4444
+  tcpPort: 4444 # DO NOT CHANGE THIS. TODO: Client is hardcoded to port 4444.
   udpPort: 4445
   sessionAffinity: None
   internalTrafficPolicy: Cluster
