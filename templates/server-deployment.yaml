@@ -26,6 +26,24 @@ spec:
         {{- toYaml $.Values.deployment.podSecurityContext | nindent 8 }}
       dnsPolicy: ClusterFirst
       restartPolicy: Always
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: {{ $.Values.deployment.server.topologyKey }}
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+          {{- include "serverclient.selectorLabels" $| nindent 12 }}-{{ $i }}
+      {{- if $.Values.deployment.server.nodeAffinity }}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: {{ $.Values.deployment.server.topologyKey }}
+                operator: In
+                values:
+                - {{ $.Values.deployment.server.nodeAffinity }}
+      {{- end }}
       containers:
         - name: {{ $.Chart.Name }}-{{ $i }}
           image: "{{ $.Values.deployment.image.registry }}/{{ $.Values.deployment.image.repository }}:{{ $.Values.deployment.image.tag | default $.Chart.AppVersion }}"
@@ -46,8 +64,6 @@ spec:
       nodeSelector:
         {{- toYaml $.Values.nodeSelector | nindent 8 }}
       terminationGracePeriodSeconds: {{ $.Values.deployment.terminationGracePeriodSeconds }}
-      affinity: 
-        {{- toYaml $.Values.deployment.affinity | nindent 8 }}
       tolerations:
         {{- toYaml $.Values.deployment.tolerations | nindent 8 }}
 {{- end }}

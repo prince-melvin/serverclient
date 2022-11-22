@@ -5,7 +5,7 @@
 # Number of server loadBalancers & deployments
 serverInstanceCount: 2
 # Number of client deployments 
-clientInstanceCount: 2
+clientInstanceCount: 0
 
 nameOverride: ""
 fullnameOverride: ""
@@ -17,10 +17,12 @@ nodeSelector:
 deployment:
   client:
       clientReplicaCount: 1
-      clientCommand: ["/client.exe", "-p", "4444", "-c", "10", "-r", "100000", "-d", "50", "-i"]  # TODO: Delay this to give enough time for servers to get ready?
+      clientCommand: ["/client.exe", "-p", "4444", "-c", "10", "-r", "200", "-d", "1000", "-i"]
   server:
-    serverCommand: ["/server.exe", "-p", "4444"]
+    serverCommand: ["/server.exe", "-p", "4444", "-pw", "60"]
     serverReplicaCount: 2
+    nodeAffinity: ""
+    topologyKey: testtype
   image:
     registry: princepereira
     repository: tcp-client-server
@@ -32,10 +34,9 @@ deployment:
   imagePullSecrets: []
   podAnnotations: {}
   preStopHookCommand: ["curl", "http://127.0.0.1:8090/kill", "-v"]
-  terminationGracePeriodSeconds: 30
+  terminationGracePeriodSeconds: 240
   podSecurityContext: {}
   tolerations: []
-  affinity: {}
   resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
@@ -54,4 +55,4 @@ service:
   udpPort: 4445
   sessionAffinity: None
   internalTrafficPolicy: Cluster
-  externalTrafficPolicy: Cluster
+  externalTrafficPolicy: Local

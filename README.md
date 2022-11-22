@@ -1,9 +1,20 @@
 # ServerClient
 
+## Setup
+Deploy 3 Windows nodes on AKS.
+1. Get names from all Windows Nodes:
+```
+kubectl get node --template "{{range .items}}{{.metadata.name}}{{\"\n\"}}{{end}}" --selector="kubernetes.io/os=windows"
+```
+2.	Add labels to nodes.
+    *	`kubectl label nodes <node-1-name> testtype=onenode `
+    *	`kubectl label nodes <node-2-name> <node-3-name> testtype=twonode`
+
+
 ## Deployment
-By default, this chart will deploy:
+This chart can deploy:
   * Server:
-    * 2 services of type LoadBalancer with etp:cluster 
+    * 2 services of type LoadBalancer with etp:local
     * 2 server deployments (`--set serverInstanceCount=2`)
     * Each server deployment with 2 pod replicas used by the service as backends (`--set deployment.server.serverReplicaCount=2`)
   * Client:
@@ -14,14 +25,14 @@ Important to note that there cannot be more client deployments than server deplo
 
 ## Deployment Configuration Examples
 
-### Create test namespace and deploy with etp:cluster
+### Create test namespace and deploy with etp:local
 ```
-helm install non-dsr --namespace test ./serverclient
+helm install dsr --namespace test ./serverclient
 ```
 
-### Deploy with etp:local to default namespace
+### Deploy with etp:cluster to default namespace
 ```
-helm install --set service.externalTrafficPolicy=Local dsr ./serverclient
+helm install --set service.externalTrafficPolicy=Cluster non-dsr ./serverclient
 ```
 
 ### Deploy ClusterIP services:
@@ -29,10 +40,10 @@ helm install --set service.externalTrafficPolicy=Local dsr ./serverclient
 helm install --set service.type=ClusterIP full-coral ./serverclient
 ```
 
-### Deploy 3x etp:cluster, 2x etp:local
+### Deploy 2x etp:cluster, 3x etp:local
 ```
-helm install --set service.externalTrafficPolicy=Local dsr ./serverclient
-helm install --set clientInstanceCount=3 --set serverInstanceCount=3 non-dsr ./serverclient
+helm install --set service.externalTrafficPolicy=Cluster non-dsr ./serverclient
+helm install --set clientInstanceCount=3 --set serverInstanceCount=3 dsr ./serverclient
 ```
 
 ### Deploy servers on one cluster, clients on another cluster
