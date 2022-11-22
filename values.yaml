@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 
 # Number of server loadBalancers & deployments
-serverInstanceCount: 2
+serverInstanceCount: 1
 # Number of client deployments 
 clientInstanceCount: 0
 
@@ -17,9 +17,11 @@ nodeSelector:
 deployment:
   client:
       clientReplicaCount: 1
-      clientCommand: ["/client.exe", "-p", "4444", "-c", "10", "-r", "200", "-d", "1000", "-i"]
+      clientCommand: ["/client.exe", "-p", "4444", "-c", "10", "-i"]
+      requestsArg: 240
+      requestDelayArg: 1000
   server:
-    serverCommand: ["/server.exe", "-p", "4444", "-pw", "60"]
+    serverCommand: ["/server.exe", "-p", "4444", "-pw", "90"]
     serverReplicaCount: 2
     nodeAffinity: ""
     topologyKey: testtype

@@ -41,13 +41,18 @@ spec:
                 {{- toYaml $.Values.deployment.preStopHookCommand | nindent 18 }}
           {{- if $.Values.deployment.client.clientCommand }}
           command:
+            {{- $args := list -}}
+            {{- $args = "-r" | append $args -}}
+            {{- $args = (printf "%d" ($.Values.deployment.client.requestsArg | int)) | append $args -}}
+            {{- $args = "-d" | append $args -}}
+            {{- $args = (printf "%d" ($.Values.deployment.client.requestDelayArg | int)) | append $args -}}
             {{- $svcName := (printf "%s-%d" (include "serverclient.fullname"  $) .) -}}
             {{- $svcFqdnInternal := (printf "%s.%s.svc.cluster.local" ($svcName) $.Release.Namespace) -}}
             {{- if eq $.Values.service.type "LoadBalancer" }} 
             {{- $svcFqdnExternal := (printf "%s.%s.cloudapp.azure.com" ($svcName) $.Values.azureRegion) -}}
-            {{- toYaml (append $.Values.deployment.client.clientCommand $svcFqdnExternal) | nindent 12 }}
+            {{- toYaml (concat (append $.Values.deployment.client.clientCommand $svcFqdnExternal) $args) | nindent 12 }}
             {{- else }}
-            {{- toYaml (append $.Values.deployment.client.clientCommand $svcFqdnInternal) | nindent 12 }}
+            {{- toYaml  (concat (append $.Values.deployment.client.clientCommand $svcFqdnInternal) $args) | nindent 12 }}
             {{- end }}
           {{- end }}
       initContainers:
@@ -58,8 +63,6 @@ spec:
       nodeSelector:
         {{- toYaml $.Values.nodeSelector | nindent 8 }}
       terminationGracePeriodSeconds: {{ $.Values.deployment.terminationGracePeriodSeconds }}
-      affinity: 
-        {{- toYaml $.Values.deployment.affinity | nindent 8 }}
       tolerations:
         {{- toYaml $.Values.deployment.tolerations | nindent 8 }}
 {{- end }}

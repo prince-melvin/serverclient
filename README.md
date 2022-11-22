@@ -14,11 +14,11 @@ kubectl get node --template "{{range .items}}{{.metadata.name}}{{\"\n\"}}{{end}}
 ## Deployment
 This chart can deploy:
   * Server:
-    * 2 services of type LoadBalancer with etp:local
-    * 2 server deployments (`--set serverInstanceCount=2`)
+    * services of type LoadBalancer with etp:local
+    * server deployments (`--set serverInstanceCount=2`)
     * Each server deployment with 2 pod replicas used by the service as backends (`--set deployment.server.serverReplicaCount=2`)
   * Client:
-    * 2 client deployments (`--set clientInstanceCount=2`)
+    * client deployments (`--set clientInstanceCount=2`)
     * Each client deployment with 1 pod replica connecting to the respective target service (`--set deployment.client.clientReplicaCount=1`)
 
 Important to note that there cannot be more client deployments than server deployments, because client `client-n` will try to connect to `service-n`. If you want multiple clients connecting to same Service, use `--set deployment.client.clientReplicaCount=2` instead.
@@ -40,7 +40,7 @@ helm install --set service.externalTrafficPolicy=Cluster non-dsr ./serverclient
 helm install --set service.type=ClusterIP full-coral ./serverclient
 ```
 
-### Deploy 2x etp:cluster, 3x etp:local
+### Deploy 1x etp:cluster, 3x etp:local servers, 3x etp:local clients
 ```
 helm install --set service.externalTrafficPolicy=Cluster non-dsr ./serverclient
 helm install --set clientInstanceCount=3 --set serverInstanceCount=3 dsr ./serverclient
@@ -50,9 +50,9 @@ helm install --set clientInstanceCount=3 --set serverInstanceCount=3 dsr ./serve
 This only works if service type is set to LoadBalancer (used by default):
 ```
 # Deploy servers onto cluster 1
-helm install --kubeconfig <path_to_cluster1_config> --set clientInstanceCount=0 must-use-same-name ./serverclient
+helm install --kubeconfig <path_to_cluster1_config> --set serverInstanceCount=2 must-use-same-name ./serverclient
 # Deploy clients only onto cluster 2
-helm install --kubeconfig <path_to_cluster2_config> --set serverInstanceCount=0 must-use-same-name ./serverclient
+helm install --kubeconfig <path_to_cluster2_config> --set serverInstanceCount=0 --set clientInstanceCount=2 must-use-same-name ./serverclient
 ```
 
 ### Wait for deployment to complete
