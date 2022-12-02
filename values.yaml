@@ -18,10 +18,10 @@ deployment:
   client:
       clientReplicaCount: 1
       clientCommand: ["/client.exe", "-p", "4444", "-c", "10", "-i"]
-      requestsArg: 240
+      requestsArg: 600
       requestDelayArg: 1000
   server:
-    serverCommand: ["/server.exe", "-p", "4444", "-pw", "90"]
+    serverCommand: ["/server.exe", "-p", "4444", "-swt", "300", "-awt", "200"]
     serverReplicaCount: 2
     nodeAffinity: ""
     topologyKey: testtype
@@ -30,13 +30,13 @@ deployment:
     repository: tcp-client-server
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: stable
+    tag: probe
   auth:
     enabled: false
   imagePullSecrets: []
   podAnnotations: {}
   preStopHookCommand: ["curl", "http://127.0.0.1:8090/kill", "-v"]
-  terminationGracePeriodSeconds: 240
+  terminationGracePeriodSeconds: 600
   podSecurityContext: {}
   tolerations: []
   resources: {}
