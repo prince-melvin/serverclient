@@ -38,7 +38,7 @@ spec:
             preStop:
               exec:
                 command: 
-                {{- toYaml $.Values.deployment.preStopHookCommand | nindent 18 }}
+                {{- toYaml $.Values.deployment.clientPreStopHookCommand | nindent 18 }}
           {{- if $.Values.deployment.client.clientCommand }}
           command:
             {{- $args := list -}}

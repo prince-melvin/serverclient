@@ -5,7 +5,7 @@
 # Number of server loadBalancers & deployments
 serverInstanceCount: 1
 # Number of client deployments 
-clientInstanceCount: 0
+clientInstanceCount: 1
 
 nameOverride: ""
 fullnameOverride: ""
@@ -18,10 +18,10 @@ deployment:
   client:
       clientReplicaCount: 1
       clientCommand: ["/client.exe", "-p", "4444", "-c", "10", "-i"]
-      requestsArg: 600
+      requestsArg: 10
       requestDelayArg: 1000
   server:
-    serverCommand: ["/server.exe", "-p", "4444", "-swt", "300", "-awt", "200"]
+    serverCommand: ["/server.exe", "-p", "4444", "-swt", "120", "-awt", "150"] # readiness probe failure periodSeconds (30) x failureRetries (3)
     serverReplicaCount: 2
     nodeAffinity: ""
     topologyKey: testtype
@@ -36,6 +36,7 @@ deployment:
   imagePullSecrets: []
   podAnnotations: {}
   preStopHookCommand: ["curl", "http://127.0.0.1:8090/kill", "-v"]
+  clientPreStopHookCommand: ["ping", "-n", "99", "localhost"]
   terminationGracePeriodSeconds: 600
   podSecurityContext: {}
   tolerations: []
@@ -53,7 +54,7 @@ deployment:
 
 service:
   type: LoadBalancer
-  tcpPort: 4444 # DO NOT CHANGE THIS. TODO: Client is hardcoded to port 4444.
+  tcpPort: 4444
   udpPort: 4445
   sessionAffinity: None
   internalTrafficPolicy: Cluster
