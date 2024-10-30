@@ -39,27 +39,8 @@ spec:
               exec:
                 command: 
                 {{- toYaml $.Values.deployment.clientPreStopHookCommand | nindent 18 }}
-          {{- if $.Values.deployment.client.clientCommand }}
-          command:
-            {{- $args := list -}}
-            {{- $args = "-r" | append $args -}}
-            {{- $args = (printf "%d" ($.Values.deployment.client.requestsArg | int)) | append $args -}}
-            {{- $args = "-d" | append $args -}}
-            {{- $args = (printf "%d" ($.Values.deployment.client.requestDelayArg | int)) | append $args -}}
-            {{- $svcName := (printf "%s-%d" (include "serverclient.fullname"  $) .) -}}
-            {{- $svcFqdnInternal := (printf "%s.%s.svc.cluster.local" ($svcName) $.Release.Namespace) -}}
-            {{- if eq $.Values.service.type "LoadBalancer" }} 
-            {{- $svcFqdnExternal := (printf "%s.%s.cloudapp.azure.com" ($svcName) $.Values.azureRegion) -}}
-            {{- toYaml (concat (append $.Values.deployment.client.clientCommand $svcFqdnExternal) $args) | nindent 12 }}
-            {{- else }}
-            {{- toYaml  (concat (append $.Values.deployment.client.clientCommand $svcFqdnInternal) $args) | nindent 12 }}
-            {{- end }}
-          {{- end }}
-      initContainers:
-        - name: init-{{ $.Chart.Name }}-{{ $i }}
-          image: "{{ $.Values.deployment.image.registry }}/{{ $.Values.deployment.image.repository }}:{{ $.Values.deployment.image.tag | default $.Chart.AppVersion }}"
-          imagePullPolicy: {{ $.Values.deployment.image.pullPolicy }}
-          command: ["ping", "-n", "60", "localhost"]
+          command: ["powershell"]
+          args: ["while($true)", "{ Sleep 5000 }"]
       nodeSelector:
         {{- toYaml $.Values.nodeSelector | nindent 8 }}
       terminationGracePeriodSeconds: {{ $.Values.deployment.terminationGracePeriodSeconds }}

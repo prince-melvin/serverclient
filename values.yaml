@@ -9,7 +9,7 @@ clientInstanceCount: 1
 
 nameOverride: ""
 fullnameOverride: ""
-azureRegion: "westus2"
+azureRegion: "westeurope"
 nodeSelector: 
   kubernetes.io/os: windows
 
@@ -17,7 +17,7 @@ nodeSelector:
 deployment:
   client:
       clientReplicaCount: 1
-      clientCommand: ["/client.exe", "-p", "4444", "-c", "10", "-i"]
+      clientCommand: ["powershell"]
       requestsArg: 10
       requestDelayArg: 1000
   server:
@@ -26,11 +26,11 @@ deployment:
     nodeAffinity: ""
     topologyKey: testtype
   image:
-    registry: princepereira
-    repository: tcp-client-server
+    registry: winnetdockerregistry.azurecr.io
+    repository: netconnect
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: probe
+    tag: testWS22vrc0.1
   auth:
     enabled: false
   imagePullSecrets: []
