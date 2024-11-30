@@ -25,7 +25,7 @@ spec:
   type: {{ $.Values.service.type }}
   ports:
     - name: tcp
-      port: {{ $.Values.service.tcpPort }}
+      port: 80
       targetPort: {{ $.Values.service.tcpPort }}
       protocol: TCP
     - name: udp
