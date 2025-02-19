@@ -30,7 +30,7 @@ deployment:
     repository: netconnect
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: 566275
+    tag: 566324
   auth:
     enabled: false
   imagePullSecrets: []
